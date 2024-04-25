@@ -115,9 +115,9 @@ function updateScale( choice, deltaTime ) {
 
 function updateStats( deltaTime ) {
     // for each choice
-    for (let i=0; i < choices.length; i++) {
-        rotate(choices[i], deltaTime);
-        updateScale(choices[i], deltaTime);
+    for (const choice of choices) {
+        rotate(choice, deltaTime);
+        updateScale(choice, deltaTime);
     }
 }
 
