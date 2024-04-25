@@ -1,5 +1,7 @@
 import * as THREE from 'three';
 
+const IMAGE_PATH = 'public'
+
 
 // setup scene
 const canvas = document.querySelector("#bg");
@@ -31,9 +33,9 @@ class Choice extends THREE.Mesh {
 }
 
 // make choices
-const rock = new Choice("rock", 'public/rock.png');
-const paper = new Choice("paper", 'public/paper.png');
-const scissors = new Choice("scissors", 'public/scissors.png');
+const rock = new Choice("rock", IMAGE_PATH + '/rock.png');
+const paper = new Choice("paper", IMAGE_PATH + '/paper.png');
+const scissors = new Choice("scissors", IMAGE_PATH + '/scissors.png');
 
 let choices = [rock, paper, scissors];
 
