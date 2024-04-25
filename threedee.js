@@ -31,9 +31,9 @@ class Choice extends THREE.Mesh {
 }
 
 // make choices
-const rock = new Choice("rock", 'images/rock.png');
-const paper = new Choice("paper", 'images/paper.png');
-const scissors = new Choice("scissors", 'images/scissors.png');
+const rock = new Choice("rock", 'public/rock.png');
+const paper = new Choice("paper", 'public/paper.png');
+const scissors = new Choice("scissors", 'public/scissors.png');
 
 let choices = [rock, paper, scissors];
 
