@@ -1,7 +1,16 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css?family=Comfortaa');
 
-body {
-    margin: 0px;
+html, body
+{
+	margin: 0;
+	overflow: hidden;
+	height: 100%;
+	width: 100%;
+	position: relative;
+	font-family: 'Comfortaa', cursive;
+    min-height: 350px;
+    min-width: 650px;
 }
 
 #bg {
@@ -12,18 +21,18 @@ body {
 }
 
 #container {
+    height: 100%;
     width: 100%;
     position: absolute;
     z-index: 100;
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     flex-direction: column;
 }
 
 h1 {
     user-select: none;
-    font-family: Roboto, sans-serif;
     color: white;
     font-size: 64px;
 }
