@@ -17,7 +17,11 @@ function setCursor(type) {
 }
 
 function startButtonClick() {
-    mainMenu.classList.add("flyUp");
+    // remove clickable buttons in main-menu
+    startButton.classList.remove("clickable");
+    // start new game once the main-menu leaving animation finishes
+    mainMenu.addEventListener("animationend", newGame, { once: true });
+    mainMenu.classList.add("flyUp");    // play main-menu leave animation
 }
 
 function newGame() {
@@ -26,5 +30,4 @@ function newGame() {
     gm.newGame();
 }
 
-startButton.addEventListener('mouseup', () => startButtonClick());
-mainMenu.addEventListener('animationend', () => newGame());
+startButton.addEventListener('mouseup', startButtonClick);
