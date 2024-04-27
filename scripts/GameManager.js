@@ -19,7 +19,8 @@ class Choice extends THREE.Mesh {
         this.rotation.y += Math.random() * 3;
         // parameters
         this.rotating = true;
-        this.selected = false;
+        this.hovered = false;
+        this.selectable = false;
     }
 
     /**
@@ -36,7 +37,7 @@ class Choice extends THREE.Mesh {
     updateScale( deltaTime ) {
         const speed = 3;
         let scale = this.scale.x;
-        if (this.selected) {
+        if (this.hovered) {
             if (scale < 1.3) {
                 scale = Math.min(1.3, scale + speed * deltaTime);
             }
@@ -187,6 +188,9 @@ class GameManager {
         this.#choices.forEach(choice => choice.move(1));
     }
 
+    /**
+     * called when initializing game
+     */
     startGame() {
 
         // make choice cubes
@@ -201,18 +205,42 @@ class GameManager {
         this.gameUpdate();
     }
 
+    /**
+     * called when creating a new game
+     */
     newGame() {
         this.#playerScore = 0;
         this.#oponentScore = 0;
 
-        this.choices[0].position.x = -2.5;  // rock
-        this.choices[1].position.x = 0;  // paper
-        this.choices[2].position.x = 2.5;  // scissors
-
-        this.choices.forEach((choice) => this.stage.add(choice));
         this.#state = this.STATES.SELECTING;
+        this.startRound();
     }
 
+    /**
+     * called when starting a new round
+     */
+    startRound() {
+        this.choices[0].position.x = -2.5;  // rock
+        this.choices[0].position.y = 6
+        this.choices[1].position.x = 0;  // paper
+        this.choices[1].position.y = 6
+        this.choices[2].position.x = 2.5;  // scissors
+        this.choices[2].position.y = 6
+
+        this.choices.forEach(choice => this.stage.add(choice));
+
+        // play animation
+        const tl = gsap.timeline();
+        this.#choices.forEach(choice => tl.to(choice.position, {duration:0.6, y:0}, 0));
+        tl.then(() => {
+            this.#choices.forEach(choice => choice.selectable = true);
+        });
+
+    }
+
+    /**
+     * called when game is paused by the user
+     */
     pauseGame() {
         switch (this.#state) {
             case this.STATES.MAIN_MENU: {}
@@ -225,8 +253,36 @@ class GameManager {
         }
     }
 
+    /**
+     * called when game is resumed after a pause by the user
+     */
     resumeGame() {
 
+    }
+
+    /**
+     * Called when user selected choice in selecting phase
+     * @param {Choice} choice Selected choice by the user
+     */
+    selected( choice ) {
+        // make choices unselectable
+        UTILS.setCursor('default');
+        this.choices.forEach(choice => {
+            choice.selectable = false;
+            choice.hovered = false;
+        });
+        // get other choices that were not picked
+        const others = this.#choices.filter(item => item !== choice);
+
+        // play animation
+        const tl = gsap.timeline(); // create timeline
+        // float other choices away
+        others.forEach(item => {tl.to(item.position, {duration: 1, y: "+=6"}, 0.1);});
+        // move picked choice to center
+        tl.to(choice.position, {duration: 0.7, x: 0, z: 2}, 0.6);
+        tl.then(() => {
+
+        });
     }
 
     castRay(x, y) {
@@ -248,11 +304,11 @@ class GameManager {
     clicked() {
         if (!this.#frozen){
             switch (this.#state) {
-                case this.STATES.SELECTING: {
-                    if (this.#hovering !== null) {
-
-                    }
+            case this.STATES.SELECTING: {
+                if (this.#hovering !== null) {
+                    this.selected(this.#hovering);
                 }
+            }
             }
         }
     }
@@ -263,20 +319,19 @@ class GameManager {
      */
     mouseMove( obj ) {
         switch (this.#state) {
-            case this.STATES.SELECTING: {
-
+        case this.STATES.SELECTING: {
+            if (obj && obj.selectable) {
+                this.#hovering = obj;
+                obj.hovered = true;
+                UTILS.setCursor('pointer');
             }
-            break;
+            else {
+                this.choices.forEach(choice => choice.hovered = false);
+                this.#hovering = null;
+                UTILS.setCursor('default');
+            }
         }
-        if (obj) {
-            this.#hovering = obj;
-            obj.selected = true;
-            UTILS.setCursor('pointer');
-        }
-        else {
-            this.choices.forEach((choice) => choice.selected = false);
-            this.#hovering = null;
-            UTILS.setCursor('default');
+        break;
         }
     }
 
