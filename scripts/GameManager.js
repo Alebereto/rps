@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import { setCursor } from './UIManager.js';
 
 const IMAGE_PATH = 'public'
 
@@ -91,8 +90,6 @@ class GameManager {
 
     // ui elements
     #container;
-    #mainMenu;
-    #startButton;
 
     // game states
     STATES = {MAIN_MENU: -1, LOADING: 0, SELECTING: 1, PAUSED: 2};
@@ -118,16 +115,12 @@ class GameManager {
         // get dom elements
         this.#canvas = document.querySelector("#bg");
         this.#container = document.querySelector("#container");
-        this.#mainMenu = document.querySelector("#main-menu");
-        this.#startButton = document.querySelector("#start-button");
 
         // create stage
         this.#stage = new Stage(this.canvas);
 
         this.#raycaster = new THREE.Raycaster();
         this.#clock = new THREE.Clock();
-
-        this.#startButton.addEventListener("mousedown", () => this.newGame());
     }
 
     get stage() {
@@ -161,8 +154,6 @@ class GameManager {
     }
 
     newGame() {
-        this.#mainMenu.style.display = 'none'
-
         this.#playerScore = 0;
         this.#oponentScore = 0;
 
@@ -245,12 +236,12 @@ class GameManager {
         if (obj) {
             this.#hovering = obj;
             obj.hovered = true;
-            setCursor('pointer');
+            // setCursor('pointer');
         }
         else {
             this.choices.forEach((choice) => choice.hovered = false);
             this.#hovering = null;
-            setCursor('default');
+            // setCursor('default');
         }
     }
 
@@ -294,5 +285,9 @@ class GameManager {
         return GameManager.#instance;
     }
 }
+
+const gm = GameManager.getInstance();
+
+gm.startGame();
 
 export default GameManager;

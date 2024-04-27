@@ -1,11 +1,10 @@
-import * as THREE from 'three';
 import GameManager from './GameManager.js'
 
 
 // create GameManager instance
 const gm = GameManager.getInstance();
 
-// === input functions ===
+// === input functions === //
 
 function clicked(event) {
     gm.clicked();
@@ -23,6 +22,3 @@ function mouseMove(event) {
 
 gm.container.addEventListener("mousedown", clicked);
 gm.container.addEventListener("mousemove", mouseMove);
-
-
-gm.startGame();

@@ -19,14 +19,16 @@
 </head>
 <body>
     <canvas id="bg"></canvas>
+    <script src="./scripts/GameManager.js" type="module"></script>
     <script src="./scripts/threedee.js" type="module"></script>
+    <script src="./scripts/UIManager.js" type="module"></script>
 
     <div id="container">
         <div id="main-menu">
           <h1>Rock Paper Scissors</h1>
           <ul>
-            <li><button id="start-button">Start Game</button></li>
-            <li><button>Options</button></li>
+            <li><button id="start-button" class="clickable">Start Game</button></li>
+            <li><button class="clickable">Options</button></li>
           </ul>
         </div>
         <h1 id="prompt"></h1>

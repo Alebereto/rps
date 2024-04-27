@@ -12,8 +12,10 @@ html, body
     min-height: 350px;
     min-width: 650px;
     background-color: black;
+    user-select: none;
 }
 
+/* Background where game is rendered on */
 #bg {
     position: fixed;
     top: 0;
@@ -21,6 +23,7 @@ html, body
     z-index: 0;
 }
 
+/* Contains all other ui elements */
 #container {
     height: 100%;
     width: 100%;
@@ -28,13 +31,17 @@ html, body
     z-index: 100;
 }
 
-#main-menu {
+/* === Main Menu === */
+
+/* container of main menu */
+#container > #main-menu {
     height: 100%;
     width: 100%;
     position: absolute;
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
 }
 
 #prompt {
@@ -60,12 +67,13 @@ ul {
 
 
 #main-menu button {
+    position: relative;
+
     width: 100%;
     color: white;
     font-size: 32px;
     font-family: 'Comfortaa', cursive;
     background-color: black;
-    cursor: pointer;
     border-style: groove;
     border-radius: 32px;
     padding: 20px 50px;
@@ -77,10 +85,14 @@ ul {
 }
 
 #main-menu li button:active {
-    background-color:rgb(73, 22, 194);
+    background-color:rgb(73, 22, 194) !important;
 }
 
-#main-menu button:hover {
+.clickable {
+    cursor: pointer;
+}
+
+#main-menu button.clickable:hover {
     background-color:#0044ff;
     transition: 0.2s;
 }
@@ -89,6 +101,34 @@ ul {
     margin-bottom: 40px;
 }
 
+@keyframes flyUp {
+    10% {
+        margin-top: 10%;
+    }
+    100% {
+        margin-top: -50%;
+    }
+}
 
+.flyUp {
+    animation-name: flyUp;
+    animation-duration: 1.8s;
+    animation-delay: 0.3s;
+    animation-fill-mode: forwards;
+}
+
+@keyframes fadeout {
+    0% {
+        opacity: 100%;
+    }
+    100% {
+        opacity: 0%;
+    }
+}
+
+.fadeout {
+    animation-name: fadeout;
+    animation-duration: 1.5s;
+}
 
 
