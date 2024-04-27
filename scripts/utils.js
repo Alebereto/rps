@@ -1,3 +1,7 @@
+
+// get elements
+const html = document.querySelector("html");
+
 /** 
  * Returns computer choice (rock paper or scirssors).
  * @returns {string} rock, paper, or scissors.
@@ -57,36 +61,9 @@ function playRound() {
 }
 
 /**
- * Plays a game of rock paper scissors for given number of rounds.
- * @param {number} rounds Number of rounds to play game.
+ * Set cursor type
+ * @param {string} type type of cursor to set (default or pointer)
  */
-function playGame(rounds) {
-    // count scores
-    let humanScore = 0;
-    let computerScore = 0;
-
-    // while no winner
-    while (humanScore < rounds && computerScore < rounds) {
-        const result = playRound();
-        if (result === 1) {
-            console.log("Human won!");
-            humanScore += 1;
-        }
-        else if (result === 2) {
-            console.log("Computer won!");
-            computerScore += 1;
-        }
-        else {
-            console.log("Tie!");
-        }
-    }
-
-    if (humanScore == rounds) {
-        console.log("Human wins " + humanScore + " : " + computerScore + "!");
-    }
-    else {
-        console.log("Computer wins " + computerScore + " : " + humanScore + "!");
-    }
+export function setCursor(type) {
+    html.style.cursor = type;
 }
-
-playGame(3);

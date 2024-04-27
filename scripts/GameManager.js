@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import * as UTILS from './utils.js'
 
 const IMAGE_PATH = 'public'
 
@@ -17,7 +18,22 @@ class Choice extends THREE.Mesh {
         this.rotation.y += Math.random() * 3;
         // parameters
         this.rotating = true;
-        this.hovered = false;
+        this.selected = false;
+    }
+
+
+    /**
+     * 
+     * @param {Object} dest contains x,y,z of desired location to move to
+     * @param {number} speed units per second
+     * @param {number} delay seconds to wait before moving
+     */
+    move( dest, speed, delay ) {
+
+    }
+
+    update( deltaTime ) {
+
     }
 }
 
@@ -204,7 +220,7 @@ class GameManager {
     updateScale( choice, deltaTime ) {
         const speed = 3;
         let scale = choice.scale.x;
-        if (choice.hovered) {
+        if (choice.selected) {
             if (scale < 1.3) {
                 scale = Math.min(1.3, scale + speed * deltaTime);
             }
@@ -237,13 +253,13 @@ class GameManager {
         }
         if (obj) {
             this.#hovering = obj;
-            obj.hovered = true;
-            // setCursor('pointer');
+            obj.selected = true;
+            UTILS.setCursor('pointer');
         }
         else {
-            this.choices.forEach((choice) => choice.hovered = false);
+            this.choices.forEach((choice) => choice.selected = false);
             this.#hovering = null;
-            // setCursor('default');
+            UTILS.setCursor('default');
         }
     }
 
