@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import * as UTILS from './utils.js';
-import * as GSAP from 'gsap';
+// import * as GSAP from 'gsap';
 
 const IMAGE_PATH = 'public'
 
@@ -57,7 +57,7 @@ class Choice extends THREE.Mesh {
      */
     move( speed ) {
         let num = this.position.y;
-        let tween = GSAP.gsap.to(this.position, {duration: 1, y: num + 4, onComplete: ()=>console.log("completed!!!!!")});
+        let tween = gsap.to(this.position, {duration: 1, y: num + 4, onComplete: ()=>console.log("completed!!!!!")});
     }
 
     update( deltaTime ) {
