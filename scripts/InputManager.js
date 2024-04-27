@@ -4,6 +4,8 @@ import GameManager from './GameManager.js'
 // create GameManager instance
 const gm = GameManager.getInstance();
 
+const body = document.querySelector("body");
+
 // === input functions === //
 
 function clicked(event) {
@@ -20,5 +22,15 @@ function mouseMove(event) {
     gm.mouseMove(obj);
 }
 
-gm.container.addEventListener("mousedown", clicked);
-gm.container.addEventListener("mousemove", mouseMove);
+function pressKey(e) {
+    console.log(`pressed key "${e.key}"`);  // lsdjflksjdlfkjslkdfjlkskldfjljsd
+    switch (e.key) {
+        case " ": {
+            gm.pauseGame();
+        }
+    }
+}
+
+body.addEventListener("mousedown", clicked);
+body.addEventListener("mousemove", mouseMove);
+window.addEventListener("keyup", pressKey);

@@ -92,7 +92,7 @@ class GameManager {
     #container;
 
     // game states
-    STATES = {MAIN_MENU: -1, LOADING: 0, SELECTING: 1, PAUSED: 2};
+    STATES = {MAIN_MENU: -1, LOADING: 0, SELECTING: 1};
     #state = this.STATES.MAIN_MENU;
 
     #hovering;  // object that mouse is hovering over
@@ -147,15 +147,16 @@ class GameManager {
         this.#choices.push(paper);
         this.#choices.push(scissors);
 
-        rock.position.x = -2.5;
-        scissors.position.x = 2.5;
-
         this.gameUpdate();
     }
 
     newGame() {
         this.#playerScore = 0;
         this.#oponentScore = 0;
+
+        this.choices[0].position.x = -2.5;  // rock
+        this.choices[1].position.x = 0;  // paper
+        this.choices[2].position.x = 2.5;  // scissors
 
         this.choices.forEach((choice) => this.stage.add(choice));
         this.#state = this.STATES.SELECTING;
@@ -164,10 +165,11 @@ class GameManager {
     pauseGame() {
         switch (this.#state) {
             case this.STATES.MAIN_MENU: {}
-            case this.STATES.PAUSED: {}
             break;
             default: {
                 console.log("PAUSE");
+                if (this.#frozen) this.#frozen = false;
+                else this.#frozen = true;
             }
         }
     }

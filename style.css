@@ -10,7 +10,7 @@ html, body
 	position: relative;
 	font-family: 'Comfortaa', cursive;
     min-height: 350px;
-    min-width: 650px;
+    min-width: 700px;
     background-color: black;
     user-select: none;
 }
@@ -106,7 +106,7 @@ ul {
         margin-top: 10%;
     }
     100% {
-        margin-top: -50%;
+        margin-top: -100%;
     }
 }
 
