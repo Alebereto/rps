@@ -1,5 +1,6 @@
 import * as THREE from 'three';
-import * as UTILS from './utils.js'
+import * as UTILS from './utils.js';
+import * as GSAP from 'gsap';
 
 const IMAGE_PATH = 'public'
 
@@ -21,6 +22,32 @@ class Choice extends THREE.Mesh {
         this.selected = false;
     }
 
+    /**
+     * Rotates choice
+     * @param {Choice} choice choice object
+     * @param {number} deltaTime time passed since last frame
+     */
+    rotate( deltaTime ) {
+        const speed = 1.3;
+        this.rotation.x += speed * deltaTime;
+        this.rotation.y += speed * deltaTime;
+    }
+
+    updateScale( deltaTime ) {
+        const speed = 3;
+        let scale = this.scale.x;
+        if (this.selected) {
+            if (scale < 1.3) {
+                scale = Math.min(1.3, scale + speed * deltaTime);
+            }
+        }
+        else if (scale > 1) {
+            scale = Math.max(1, scale - speed * deltaTime);
+        }
+        this.scale.x = scale;
+        this.scale.y = scale;
+        this.scale.z = scale;
+    }
 
     /**
      * 
@@ -33,7 +60,8 @@ class Choice extends THREE.Mesh {
     }
 
     update( deltaTime ) {
-
+        this.updateScale( deltaTime );
+        this.rotate( deltaTime );
     }
 }
 
@@ -128,6 +156,7 @@ class GameManager {
     #oponentScore;
 
     constructor() {
+        if (GameManager.#instance !== null) throw new Error("Singleton instance already exists!");
         // get dom elements
         this.#canvas = document.querySelector("#bg");
         this.#container = document.querySelector("#container");
@@ -206,33 +235,6 @@ class GameManager {
         return this.#raycaster.intersectObjects(this.stage.scene.children);
     }
 
-    /**
-     * Rotates choice
-     * @param {Choice} choice choice object
-     * @param {number} deltaTime time passed since last frame
-     */
-    rotate( choice, deltaTime ) {
-        const speed = 1.3;
-        choice.rotation.x += speed * deltaTime;
-        choice.rotation.y += speed * deltaTime;
-    }
-
-    updateScale( choice, deltaTime ) {
-        const speed = 3;
-        let scale = choice.scale.x;
-        if (choice.selected) {
-            if (scale < 1.3) {
-                scale = Math.min(1.3, scale + speed * deltaTime);
-            }
-        }
-        else if (scale > 1) {
-            scale = Math.max(1, scale - speed * deltaTime);
-        }
-        choice.scale.x = scale;
-        choice.scale.y = scale;
-        choice.scale.z = scale;
-    }
-
     /*
      * ==== Input functions ====
      */
@@ -274,8 +276,7 @@ class GameManager {
     updateStats(deltaTime) {
         // for each choice
         for (const choice of this.#choices) {
-            this.rotate(choice, deltaTime);
-            this.updateScale(choice, deltaTime);
+            choice.update( deltaTime );
         }
     }
 
