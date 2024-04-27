@@ -28,6 +28,10 @@ function pressKey(e) {
         case " ": {
             gm.pauseGame();
         }
+        break;
+        case "m": {
+            gm.test();
+        }
     }
 }
 

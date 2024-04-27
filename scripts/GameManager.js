@@ -55,8 +55,9 @@ class Choice extends THREE.Mesh {
      * @param {number} speed units per second
      * @param {number} delay seconds to wait before moving
      */
-    move( dest, speed, delay ) {
-
+    move( speed ) {
+        let num = this.position.y;
+        let tween = GSAP.gsap.to(this.position, {duration: 1, y: num + 4, onComplete: ()=>console.log("completed!!!!!")});
     }
 
     update( deltaTime ) {
@@ -181,6 +182,11 @@ class GameManager {
         return this.#container;
     }
 
+    test() {
+        console.log("TESTING!!!");
+        this.#choices.forEach(choice => choice.move(1));
+    }
+
     startGame() {
 
         // make choice cubes
@@ -240,6 +246,15 @@ class GameManager {
      */
 
     clicked() {
+        if (!this.#frozen){
+            switch (this.#state) {
+                case this.STATES.SELECTING: {
+                    if (this.#hovering !== null) {
+
+                    }
+                }
+            }
+        }
     }
     
     /**
