@@ -11,6 +11,7 @@ html, body
 	font-family: 'Comfortaa', cursive;
     min-height: 350px;
     min-width: 650px;
+    background-color: black;
 }
 
 #bg {
@@ -25,6 +26,18 @@ html, body
     width: 100%;
     position: absolute;
     z-index: 100;
+}
+
+#main-menu {
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#prompt {
     display: flex;
     align-items: center;
     justify-content: flex-start;
@@ -36,4 +49,46 @@ h1 {
     color: white;
     font-size: 64px;
 }
+
+ul {
+    padding: 0;
+    margin: 0;
+    list-style-type: none;
+    user-select: none;
+}
+
+
+
+#main-menu button {
+    width: 100%;
+    color: white;
+    font-size: 32px;
+    font-family: 'Comfortaa', cursive;
+    background-color: black;
+    cursor: pointer;
+    border-style: groove;
+    border-radius: 32px;
+    padding: 20px 50px;
+}
+
+#main-menu button {
+    background-color: black;
+    transition: 0.3s;
+}
+
+#main-menu li button:active {
+    background-color:rgb(73, 22, 194);
+}
+
+#main-menu button:hover {
+    background-color:#0044ff;
+    transition: 0.2s;
+}
+
+#main-menu li {
+    margin-bottom: 40px;
+}
+
+
+
 

@@ -1,4 +1,26 @@
 import * as THREE from 'three';
+import { setCursor } from './UIManager.js';
+
+const IMAGE_PATH = 'public'
+
+/**
+ * Cubes that move around and sutff with epic textures
+ */
+class Choice extends THREE.Mesh {
+    constructor(name, texturePath) {
+        // create mesh
+        const texture = new THREE.TextureLoader().load(texturePath);
+        super(new THREE.BoxGeometry( 1, 1, 1 ),
+            new THREE.MeshBasicMaterial( {map: texture } ))
+        this.name = name;
+        // set initial random rotation
+        this.rotation.x += Math.random() * 3;
+        this.rotation.y += Math.random() * 3;
+        // parameters
+        this.rotating = true;
+        this.hovered = false;
+    }
+}
 
 /**
  * Class containing all elements of the world
@@ -64,28 +86,48 @@ class GameManager {
     
     static #instance = null;    // GameManager instance
 
-    // main html elements
-    #canvas = document.querySelector("#bg");    // game is rendered on canvas
-    #container = document.querySelector("#container");  // ui is on container
+    // main html element
+    #canvas;    // game is rendered on canvas
+
+    // ui elements
+    #container;
+    #mainMenu;
+    #startButton;
 
     // game states
-    STATES = {LOADING: 0, SELECTING: 1};
-    #state = this.STATES.LOADING;
+    STATES = {MAIN_MENU: -1, LOADING: 0, SELECTING: 1, PAUSED: 2};
+    #state = this.STATES.MAIN_MENU;
+
+    #hovering;  // object that mouse is hovering over
 
     // world
     #stage;
     #raycaster;
     #clock;
     #deltaTime = 0;
+    #frozen = false;    // make true to freeze world
 
     // groups
     #choices = [];
 
+    // game stats
+    #playerScore;
+    #oponentScore;
+
     constructor() {
+        // get dom elements
+        this.#canvas = document.querySelector("#bg");
+        this.#container = document.querySelector("#container");
+        this.#mainMenu = document.querySelector("#main-menu");
+        this.#startButton = document.querySelector("#start-button");
+
+        // create stage
         this.#stage = new Stage(this.canvas);
 
         this.#raycaster = new THREE.Raycaster();
         this.#clock = new THREE.Clock();
+
+        this.#startButton.addEventListener("mousedown", () => this.newGame());
     }
 
     get stage() {
@@ -101,9 +143,46 @@ class GameManager {
         return this.#container;
     }
 
+    startGame() {
+
+        // make choice cubes
+        const rock = new Choice("rock", IMAGE_PATH + '/rock.png');
+        const paper = new Choice("paper", IMAGE_PATH + '/paper.png');
+        const scissors = new Choice("scissors", IMAGE_PATH + '/scissors.png');
+
+        this.#choices.push(rock);
+        this.#choices.push(paper);
+        this.#choices.push(scissors);
+
+        rock.position.x = -2.5;
+        scissors.position.x = 2.5;
+
+        this.gameUpdate();
+    }
+
     newGame() {
-        this.playerScore = 0;
-        this.oponentScore = 0;
+        this.#mainMenu.style.display = 'none'
+
+        this.#playerScore = 0;
+        this.#oponentScore = 0;
+
+        this.choices.forEach((choice) => this.stage.add(choice));
+        this.#state = this.STATES.SELECTING;
+    }
+
+    pauseGame() {
+        switch (this.#state) {
+            case this.STATES.MAIN_MENU: {}
+            case this.STATES.PAUSED: {}
+            break;
+            default: {
+                console.log("PAUSE");
+            }
+        }
+    }
+
+    resumeGame() {
+
     }
 
     castRay(x, y) {
@@ -121,7 +200,7 @@ class GameManager {
     /**
      * Rotates choice
      * @param {Choice} choice choice object
-     * @param {number} deltaTime time passed since last animate() call
+     * @param {number} deltaTime time passed since last frame
      */
     rotate( choice, deltaTime ) {
         const speed = 1.3;
@@ -145,13 +224,44 @@ class GameManager {
         choice.scale.z = scale;
     }
 
-    add(array) {
-        for( const obj of array ) {
-            this.stage.add(obj);
-            this.#choices.push(obj);
+    /*
+     * ==== Input functions ====
+     */
+
+    clicked() {
+    }
+    
+    /**
+     * 
+     * @param {*} obj object in scene that was pointed at after mouse move
+     */
+    mouseMove( obj ) {
+        switch (this.#state) {
+            case this.STATES.SELECTING: {
+
+            }
+            break;
+        }
+        if (obj) {
+            this.#hovering = obj;
+            obj.hovered = true;
+            setCursor('pointer');
+        }
+        else {
+            this.choices.forEach((choice) => choice.hovered = false);
+            this.#hovering = null;
+            setCursor('default');
         }
     }
 
+    /*
+     * ===== Every frame =====
+     */
+
+    /**
+     * Updates all things that advance with time
+     * @param {number} deltaTime time since last frame
+     */
     updateStats(deltaTime) {
         // for each choice
         for (const choice of this.#choices) {
@@ -161,13 +271,14 @@ class GameManager {
     }
 
     /**
-     * 
+     * Function that is called every frame
      */
     gameUpdate() {
         requestAnimationFrame( () => this.gameUpdate() );
-        this.#deltaTime = this.#clock.getDelta();
+        let deltaTime = this.#clock.getDelta();
+        if (this.#frozen) {deltaTime = 0;}
 
-        this.updateStats(this.#deltaTime);
+        this.updateStats( deltaTime );
         this.stage.render();
     }
 
