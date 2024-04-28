@@ -6,6 +6,8 @@ const gm = GameManager.getInstance();
 
 const mainMenu = document.querySelector("#main-menu");
 const startButton = document.querySelector("#start-button");
+const resumeButton = document.querySelector("#resume-button");
+const pauseMenu = document.querySelector("#pause-menu");
 
 function startButtonClick() {
     // remove clickable buttons in main-menu
@@ -16,9 +18,15 @@ function startButtonClick() {
 }
 
 function newGame() {
-    mainMenu.style.display = 'none'
+    mainMenu.style.display = 'none';
     mainMenu.classList.remove("flyUp");
     gm.newGame();
 }
 
+function resumeButtonClick() {
+    pauseMenu.style.display = 'none';
+    gm.resumeGame();
+}
+
 startButton.addEventListener('mouseup', startButtonClick);
+resumeButton.addEventListener('mouseup', resumeButtonClick);

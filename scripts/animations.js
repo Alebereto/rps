@@ -31,6 +31,26 @@ export function oponentArriveAnimation(oponent) {
     // set initial position
     oponent.position.x = 2;
     oponent.position.y = 6;
-    tw = gsap.to(oponent.position, {duration: 1, y: 0});
+    const tw = gsap.to(oponent.position, {duration: 1, y: 0});
+    return Promise.resolve(tw);
+}
+
+export function roundWinAnimation( choice, opChoice ) {
+    const tl = gsap.timeline({delay:0.5});
+    tl.to(choice.position, {duration: 0.3, x: 1.4}, 0)
+      .to(choice.position, {duration: 0.2, x: 0});
+    tl.to(opChoice.position, {duration: 0.2, x:18, y:18}, 0.3);
     return Promise.resolve(tl);
+}
+
+export function roundLooseAnimation( choice, opChoice ) {
+    const tl = gsap.timeline({delay:0.5});
+    tl.to(opChoice.position, {duration: 0.3, x: -1.4}, 0)
+      .to(opChoice.position, {duration: 0.2, x: 0});
+    tl.to(choice.position, {duration: 0.2, x: -18, y: 18}, 0.3);
+    return Promise.resolve(tl);
+}
+
+export function roundTieAnimation( choice, opChoice ) {
+    return Promise.resolve(1);
 }

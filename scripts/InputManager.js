@@ -25,16 +25,9 @@ function mouseMove(event) {
 function pressKey(e) {
     console.log(`pressed key "${e.key}"`);  // lsdjflksjdlfkjslkdfjlkskldfjljsd
     switch (e.key) {
-        case " ": {
+        case "p": {
             gm.pauseGame();
-        }
-        break;
-        case "r": {
-            gm.resumeGame();
-        }
-        case "m": {
-            
-        }
+        } break;
     }
 }
 

@@ -28,7 +28,55 @@ html, body
     height: 100%;
     width: 100%;
     position: absolute;
-    z-index: 100;
+    z-index: 1;
+}
+
+#prompt {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    flex-direction: column;
+}
+
+/* remove default ul stuff */
+ul {
+    padding: 0;
+    margin: 0;
+    list-style-type: none;
+    user-select: none;
+}
+
+/* button stuff */
+
+.clickable {
+    cursor: pointer;
+}
+
+#container button {
+    position: relative;
+
+    width: 100%;
+    color: white;
+    font-size: 32px;
+    font-family: 'Comfortaa', cursive;
+    background-color: rgba(0, 0, 0, 0.95);
+    border-style: groove;
+    border-radius: 32px;
+    padding: 20px 50px;
+}
+
+#container button {
+    background-color: black;
+    transition: 0.3s;
+}
+
+#container button:active {
+    background-color:rgb(73, 22, 194) !important;
+}
+
+#container button.clickable:hover {
+    background-color:#0044ff;
+    transition: 0.2s;
 }
 
 /* === Main Menu === */
@@ -44,62 +92,94 @@ html, body
     justify-content: center;
 }
 
-#prompt {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    flex-direction: column;
-}
-
-h1 {
+#main-menu h1 {
     user-select: none;
     color: white;
     font-size: 64px;
 }
 
-ul {
-    padding: 0;
-    margin: 0;
-    list-style-type: none;
-    user-select: none;
-}
-
-
-
-#main-menu button {
-    position: relative;
-
-    width: 100%;
-    color: white;
-    font-size: 32px;
-    font-family: 'Comfortaa', cursive;
-    background-color: black;
-    border-style: groove;
-    border-radius: 32px;
-    padding: 20px 50px;
-}
-
-#main-menu button {
-    background-color: black;
-    transition: 0.3s;
-}
-
-#main-menu li button:active {
-    background-color:rgb(73, 22, 194) !important;
-}
-
-.clickable {
-    cursor: pointer;
-}
-
-#main-menu button.clickable:hover {
-    background-color:#0044ff;
-    transition: 0.2s;
-}
-
 #main-menu li {
     margin-bottom: 40px;
 }
+
+
+
+/* === Pause Menu === */
+
+#container > #pause-menu {
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    z-index: 3;
+
+    background-color: rgba(51, 63, 63, 0.95);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+#pause-menu h1 {
+    user-select: none;
+    color: white;
+    font-size: 40px;
+}
+
+#pause-menu button {
+    font-size: 20px;
+}
+
+#pause-menu li {
+    margin-bottom: 40px;
+}
+
+/* === prompt === */
+
+#prompt {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+#prompt #header {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width:100%;
+}
+
+#prompt h1 {
+    margin: 0;
+    font-size: 50px;
+    color: white;
+}
+#prompt #title {
+    margin-top: 30px;
+    margin-bottom: 30px;
+}
+#prompt #scores {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    row-gap: 100px;
+}
+#prompt #score1 {
+    margin-right: 150px;
+    color:blue;
+}
+#prompt #score2 {
+    margin-left: 150px;
+    color:red;
+}
+#prompt #footer {
+    margin-bottom: 20px;
+}
+
+/* === animations === */
 
 @keyframes flyUp {
     10% {

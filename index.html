@@ -33,10 +33,20 @@
           <li><button class="clickable">Options</button></li>
         </ul>
       </div>
-      <div id="pause-menu">
-
+      <div id="pause-menu" style="display: none;">
+        <h1>Paused</h1>
+        <ul>
+          <li><button id="resume-button" class="clickable">Resume Game</button></li>
+          <li><button class="clickable">Exit Game</button></li>
+        </ul>
       </div>
-      <h1 id="prompt" style="display: none;">AAAAAAAAAAAA</h1>
+      <div id="prompt" style="display: none;">
+        <div id="header">
+          <h1 id="title"></h1>
+          <div id="scores"><h1 id="score1">0</h1><h1 id="score2">1</h1></div>
+        </div>
+        <h1 id="footer">Click to continue</h1>
+      </div>
   </div>
 </body>
 </html>

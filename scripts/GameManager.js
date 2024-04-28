@@ -123,14 +123,11 @@ class GameManager {
     // main html element
     #canvas;    // game is rendered on canvas
 
-    // ui elements
-    #container;
-
     // animation elements
     #timeLine;
 
     // game states
-    STATES = {MAIN_MENU: -1, LOADING: 0, SELECTING: 1};
+    STATES = {MAIN_MENU: -1, LOADING: 0, SELECTING: 1, WAITCLICK: 2};
     #state = this.STATES.MAIN_MENU;
 
     #hovering;  // object that mouse is hovering over
@@ -139,7 +136,7 @@ class GameManager {
     #stage;
     #raycaster;
     #clock;
-    #frozen = false;    // make true to freeze world
+    #paused = false;    // make true to freeze world
 
     // groups
     #choices = [];
@@ -153,7 +150,6 @@ class GameManager {
         if (GameManager.#instance !== null) throw new Error("Singleton instance already exists!");
         // get dom elements
         this.#canvas = document.querySelector("#bg");
-        this.#container = document.querySelector("#container");
 
         // create stage
         this.#stage = new Stage(this.canvas);
@@ -165,14 +161,8 @@ class GameManager {
     get stage() {
         return this.#stage;
     }
-    get choices() {
-        return this.#choices;
-    }
     get canvas() {
         return this.#canvas;
-    }
-    get container() {
-        return this.#container;
     }
 
     /**
@@ -180,39 +170,31 @@ class GameManager {
      */
     startGame() {
 
-        // make choice cubes
-        const rock = new Choice("rock", IMAGE_PATH + '/rock.png');
-        const paper = new Choice("paper", IMAGE_PATH + '/paper.png');
-        const scissors = new Choice("scissors", IMAGE_PATH + '/scissors.png');
-
-        this.#choices.push(rock);
-        this.#choices.push(paper);
-        this.#choices.push(scissors);
+        // create main menu and stuff
 
         this.gameUpdate();
     }
 
     /**
-     * called when game is paused by the user
+     * called when game is paused by the player
      */
     pauseGame() {
-        switch (this.#state) {
-            case this.STATES.MAIN_MENU: {}
-            break;
-            default: {
-                console.log("PAUSE");
-                this.#frozen = true;
-                this.#timeLine = gsap.exportRoot();
-                this.#timeLine.pause();
-            }
+
+        if (!this.#paused && (this.#state != this.STATES.MAIN_MENU)) {
+            console.log("PAUSE");
+            this.#paused = true;
+            this.#timeLine = gsap.exportRoot();
+            this.#timeLine.pause();
+            UTILS.createPauseMenu();
         }
     }
 
     /**
-     * called when game is resumed after a pause by the user
+     * called when game is resumed after a pause by the player
      */
     resumeGame() {
-        this.#frozen = false;
+        console.log("RESUME");
+        this.#paused = false;
         this.#timeLine.resume();
     }
 
@@ -224,83 +206,95 @@ class GameManager {
      * called when creating a new game
      */
     newGame() {
+        console.log("starting new game");
         this.#playerScore = 0;
         this.#oponentScore = 0;
 
-        this.#state = this.STATES.SELECTING;
+        this.#state = this.STATES.LOADING;
         this.startRound();
     }
 
     /**
      * called when starting a new round
      */
-    startRound() {
+    async startRound() {
+        console.log("Starting round");
+        // make choice cubes
+        const rock = new Choice("rock", IMAGE_PATH + '/rock.png');
+        const paper = new Choice("paper", IMAGE_PATH + '/paper.png');
+        const scissors = new Choice("scissors", IMAGE_PATH + '/scissors.png');
+        // init choices group
+        this.#choices = [rock, paper, scissors];
         // add choices to stage
-        this.choices.forEach(choice => this.stage.add(choice));
+        this.#choices.forEach(choice => this.stage.add(choice));
         // play start round animation
-        const promise = ANIM.startRoundAnimation(this.choices);
-        // after animation
-        promise.then(() => {
-            this.#choices.forEach(choice => choice.selectable = true);
-        });
+        await ANIM.startRoundAnimation(this.#choices);
+        // set next game state
+        this.#state = this.STATES.SELECTING;
+        this.#choices.forEach(choice => choice.selectable = true);
     }
 
     /**
-     * Called when user selected choice in selecting phase
-     * @param {Choice} choice Selected choice by the user
+     * Called when player selected choice in selecting phase
+     * @param {Choice} choice Selected choice by the player
      */
-    selected( choice ) {
+    async selected( choice ) {
+        this.#state = this.STATES.LOADING;
         // make choices unselectable
         UTILS.setCursor('default');
-        this.choices.forEach(choice => {
+        this.#choices.forEach(choice => {
             choice.selectable = false;
             choice.hovered = false;
-        });
+            });
         // get other choices that were not picked
         const others = this.#choices.filter(item => item !== choice);
+
         // play animation
-        const promise = ANIM.afterSelectAnimation(choice, others);
-        promise.then(() => {
+        await ANIM.afterSelectAnimation(choice, others);
 
-            // after animation:
-            // remove other choices from scene
-            others.forEach(choice => this.stage.remove(choice));
+        // remove other choices from scene
+        others.forEach(choice => this.stage.remove(choice));
 
-            // get names of choices for both sides
-            const uPick = choice.name;
-            const oPick = UTILS.getComputerChoice();
-            
-            const result = UTILS.getResult(uPick, oPick); // 1 if user won, 2 if lost and 0 if tie
+        // get round result
+        const uPick = choice.name;
+        const oPick = UTILS.getComputerChoice();
+        const result = UTILS.getResult(uPick, oPick);
 
-            // create oponent choice block and move into the right
-            const opChoice = new Choice(oPick, `${IMAGE_PATH}/${oPick}.png`);
-            // add oponent cube to scene and choices group
-            this.stage.add(opChoice);
-            this.choices.push(opChoice);
-            
-            promise = ANIM.oponentArriveAnimation(opChoice);
-            promise.then(() => {
-                switch (result) {
-                    case 0: this.onRoundTie(choice, opChoice);
-                    break;
-                    case 1: this.onRoundWin(choice, opChoice);
-                    break;
-                    case 2: this.onRoundLoose(choice, opChoice);
-                }
-            }); 
-        });
+        // create oponent choice block and play animation
+        this.#oponent = new Choice(oPick, `${IMAGE_PATH}/${oPick}.png`);
+        this.stage.add(this.#oponent);
+        this.#choices.push(this.#oponent);
+        
+        await ANIM.oponentArriveAnimation(this.#oponent);
+
+        let title;
+        switch (result) {
+            case "tie": {
+                await ANIM.roundTieAnimation(choice, this.#oponent);
+                title = "TIE";
+            } break;
+            case "win": {
+                this.#playerScore += 1;
+
+                await ANIM.roundWinAnimation(choice, this.#oponent);
+                title = "You Win!";
+            } break;
+            case "loose": {
+                this.#oponentScore += 1;
+
+                await ANIM.roundLooseAnimation(choice, this.#oponent);
+                title = "You Loose :(";
+            } break;
+            default: throw new Error("bad result");
+        }
+
+        // after end
+        UTILS.showPrompt(title, this.#playerScore, this.#oponentScore);
+        this.onRoundEnd(choice, this.#oponent);
     }
 
-    onRoundTie(choice, opChoice) {
-
-    }
-
-    onRoundWin(choice, opChoice) {
-
-    }
-
-    onRoundLoose(choice, opChoice) {
-
+    onRoundEnd() {
+        this.#state = this.STATES.WAITCLICK;
     }
 
 
@@ -325,13 +319,13 @@ class GameManager {
      */
 
     clicked() {
-        if (!this.#frozen){
-            switch (this.#state) {
+        if (this.#paused) return;
+        
+        switch (this.#state) {
             case this.STATES.SELECTING: {
-                if (this.#hovering !== null) {
+                if (this.#hovering && this.#hovering.selectable) {
                     this.selected(this.#hovering);
                 }
-            }
             }
         }
     }
@@ -349,7 +343,7 @@ class GameManager {
                 UTILS.setCursor('pointer');
             }
             else {
-                this.choices.forEach(choice => choice.hovered = false);
+                this.#choices.forEach(choice => choice.hovered = false);
                 this.#hovering = null;
                 UTILS.setCursor('default');
             }
@@ -379,7 +373,7 @@ class GameManager {
     gameUpdate() {
         requestAnimationFrame( () => this.gameUpdate() );
         let deltaTime = this.#clock.getDelta();
-        if (this.#frozen) {deltaTime = 0;}
+        if (this.#paused) {deltaTime = 0;}
 
         this.updateStats( deltaTime );
         this.stage.render();
