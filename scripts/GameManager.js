@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import * as UTILS from './utils.js';
-// import * as GSAP from 'gsap';
+import * as ANIM from './animations.js';
 
 const IMAGE_PATH = 'public'
 
@@ -48,17 +48,6 @@ class Choice extends THREE.Mesh {
         this.scale.x = scale;
         this.scale.y = scale;
         this.scale.z = scale;
-    }
-
-    /**
-     * 
-     * @param {Object} dest contains x,y,z of desired location to move to
-     * @param {number} speed units per second
-     * @param {number} delay seconds to wait before moving
-     */
-    move( speed ) {
-        let num = this.position.y;
-        let tween = gsap.to(this.position, {duration: 1, y: num + 4, onComplete: ()=>console.log("completed!!!!!")});
     }
 
     update( deltaTime ) {
@@ -137,6 +126,9 @@ class GameManager {
     // ui elements
     #container;
 
+    // animation elements
+    #timeLine;
+
     // game states
     STATES = {MAIN_MENU: -1, LOADING: 0, SELECTING: 1};
     #state = this.STATES.MAIN_MENU;
@@ -147,11 +139,11 @@ class GameManager {
     #stage;
     #raycaster;
     #clock;
-    #deltaTime = 0;
     #frozen = false;    // make true to freeze world
 
     // groups
     #choices = [];
+    #oponent;
 
     // game stats
     #playerScore;
@@ -183,11 +175,6 @@ class GameManager {
         return this.#container;
     }
 
-    test() {
-        console.log("TESTING!!!");
-        this.#choices.forEach(choice => choice.move(1));
-    }
-
     /**
      * called when initializing game
      */
@@ -206,6 +193,34 @@ class GameManager {
     }
 
     /**
+     * called when game is paused by the user
+     */
+    pauseGame() {
+        switch (this.#state) {
+            case this.STATES.MAIN_MENU: {}
+            break;
+            default: {
+                console.log("PAUSE");
+                this.#frozen = true;
+                this.#timeLine = gsap.exportRoot();
+                this.#timeLine.pause();
+            }
+        }
+    }
+
+    /**
+     * called when game is resumed after a pause by the user
+     */
+    resumeGame() {
+        this.#frozen = false;
+        this.#timeLine.resume();
+    }
+
+    /*
+     * ==== Game Functions =================
+     */
+
+    /**
      * called when creating a new game
      */
     newGame() {
@@ -220,44 +235,14 @@ class GameManager {
      * called when starting a new round
      */
     startRound() {
-        this.choices[0].position.x = -2.5;  // rock
-        this.choices[0].position.y = 6
-        this.choices[1].position.x = 0;  // paper
-        this.choices[1].position.y = 6
-        this.choices[2].position.x = 2.5;  // scissors
-        this.choices[2].position.y = 6
-
+        // add choices to stage
         this.choices.forEach(choice => this.stage.add(choice));
-
-        // play animation
-        const tl = gsap.timeline();
-        this.#choices.forEach(choice => tl.to(choice.position, {duration:0.6, y:0}, 0));
-        tl.then(() => {
+        // play start round animation
+        const promise = ANIM.startRoundAnimation(this.choices);
+        // after animation
+        promise.then(() => {
             this.#choices.forEach(choice => choice.selectable = true);
         });
-
-    }
-
-    /**
-     * called when game is paused by the user
-     */
-    pauseGame() {
-        switch (this.#state) {
-            case this.STATES.MAIN_MENU: {}
-            break;
-            default: {
-                console.log("PAUSE");
-                if (this.#frozen) this.#frozen = false;
-                else this.#frozen = true;
-            }
-        }
-    }
-
-    /**
-     * called when game is resumed after a pause by the user
-     */
-    resumeGame() {
-
     }
 
     /**
@@ -273,17 +258,55 @@ class GameManager {
         });
         // get other choices that were not picked
         const others = this.#choices.filter(item => item !== choice);
-
         // play animation
-        const tl = gsap.timeline(); // create timeline
-        // float other choices away
-        others.forEach(item => {tl.to(item.position, {duration: 1, y: "+=6"}, 0.1);});
-        // move picked choice to center
-        tl.to(choice.position, {duration: 0.7, x: 0, z: 2}, 0.6);
-        tl.then(() => {
+        const promise = ANIM.afterSelectAnimation(choice, others);
+        promise.then(() => {
 
+            // after animation:
+            // remove other choices from scene
+            others.forEach(choice => this.stage.remove(choice));
+
+            // get names of choices for both sides
+            const uPick = choice.name;
+            const oPick = UTILS.getComputerChoice();
+            
+            const result = UTILS.getResult(uPick, oPick); // 1 if user won, 2 if lost and 0 if tie
+
+            // create oponent choice block and move into the right
+            const opChoice = new Choice(oPick, `${IMAGE_PATH}/${oPick}.png`);
+            // add oponent cube to scene and choices group
+            this.stage.add(opChoice);
+            this.choices.push(opChoice);
+            
+            promise = ANIM.oponentArriveAnimation(opChoice);
+            promise.then(() => {
+                switch (result) {
+                    case 0: this.onRoundTie(choice, opChoice);
+                    break;
+                    case 1: this.onRoundWin(choice, opChoice);
+                    break;
+                    case 2: this.onRoundLoose(choice, opChoice);
+                }
+            }); 
         });
     }
+
+    onRoundTie(choice, opChoice) {
+
+    }
+
+    onRoundWin(choice, opChoice) {
+
+    }
+
+    onRoundLoose(choice, opChoice) {
+
+    }
+
+
+    /*
+     * ==== Some util =================
+     */
 
     castRay(x, y) {
         const mouseX = (x / window.innerWidth) * 2 - 1;
@@ -298,7 +321,7 @@ class GameManager {
     }
 
     /*
-     * ==== Input functions ====
+     * ==== Input functions ================
      */
 
     clicked() {
@@ -336,7 +359,7 @@ class GameManager {
     }
 
     /*
-     * ===== Every frame =====
+     * ===== Every frame ==================
      */
 
     /**

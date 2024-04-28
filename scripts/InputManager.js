@@ -29,8 +29,11 @@ function pressKey(e) {
             gm.pauseGame();
         }
         break;
+        case "r": {
+            gm.resumeGame();
+        }
         case "m": {
-            gm.test();
+            
         }
     }
 }
