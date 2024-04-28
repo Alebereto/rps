@@ -58,3 +58,7 @@ export function showPrompt( str= "", pScore=0, oScore=0 ) {
     prompt.style.display = 'flex';
 }
 
+export function removePrompt() {
+    prompt.style.display = 'none';
+}
+

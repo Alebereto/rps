@@ -37,20 +37,26 @@ export function oponentArriveAnimation(oponent) {
 
 export function roundWinAnimation( choice, opChoice ) {
     const tl = gsap.timeline({delay:0.5});
-    tl.to(choice.position, {duration: 0.3, x: 1.4}, 0)
-      .to(choice.position, {duration: 0.2, x: 0});
-    tl.to(opChoice.position, {duration: 0.2, x:18, y:18}, 0.3);
+    tl.to(choice.position, {duration: 0.1, x: 1.4}, 0)
+      .to(choice.position, {delay:0.15, duration: 0.2, x: 0});
+    tl.to(opChoice.position, {duration: 0.2, x:18, y:18}, 0.14);
     return Promise.resolve(tl);
 }
 
 export function roundLooseAnimation( choice, opChoice ) {
     const tl = gsap.timeline({delay:0.5});
-    tl.to(opChoice.position, {duration: 0.3, x: -1.4}, 0)
-      .to(opChoice.position, {duration: 0.2, x: 0});
-    tl.to(choice.position, {duration: 0.2, x: -18, y: 18}, 0.3);
+    tl.to(opChoice.position, {duration: 0.1, x: -1.4}, 0)
+      .to(opChoice.position, {delay:0.15, duration: 0.2, x: 0});
+    tl.to(choice.position, {duration: 0.2, x: -18, y: 18}, 0.14);
     return Promise.resolve(tl);
 }
 
 export function roundTieAnimation( choice, opChoice ) {
     return Promise.resolve(1);
+}
+
+export function roundEndAnimation( choices ) {
+    const tl = gsap.timeline({delay:0.5});
+    choices.forEach(choice => tl.to(choice.position, {duration: 0.4, y:"+=10"}, 0));
+    return Promise.resolve(tl);
 }

@@ -140,7 +140,6 @@ class GameManager {
 
     // groups
     #choices = [];
-    #oponent;
 
     // game stats
     #playerScore;
@@ -210,7 +209,6 @@ class GameManager {
         this.#playerScore = 0;
         this.#oponentScore = 0;
 
-        this.#state = this.STATES.LOADING;
         this.startRound();
     }
 
@@ -219,6 +217,7 @@ class GameManager {
      */
     async startRound() {
         console.log("Starting round");
+        this.#state = this.STATES.LOADING;
         // make choice cubes
         const rock = new Choice("rock", IMAGE_PATH + '/rock.png');
         const paper = new Choice("paper", IMAGE_PATH + '/paper.png');
@@ -254,6 +253,7 @@ class GameManager {
 
         // remove other choices from scene
         others.forEach(choice => this.stage.remove(choice));
+        this.#choices = [choice];
 
         // get round result
         const uPick = choice.name;
@@ -261,40 +261,54 @@ class GameManager {
         const result = UTILS.getResult(uPick, oPick);
 
         // create oponent choice block and play animation
-        this.#oponent = new Choice(oPick, `${IMAGE_PATH}/${oPick}.png`);
-        this.stage.add(this.#oponent);
-        this.#choices.push(this.#oponent);
+        const oponent = new Choice(oPick, `${IMAGE_PATH}/${oPick}.png`);
+        this.stage.add(oponent);
+        this.#choices.push(oponent);
         
-        await ANIM.oponentArriveAnimation(this.#oponent);
+        await ANIM.oponentArriveAnimation(oponent);
 
         let title;
         switch (result) {
             case "tie": {
-                await ANIM.roundTieAnimation(choice, this.#oponent);
+                await ANIM.roundTieAnimation(choice, oponent);
                 title = "TIE";
             } break;
             case "win": {
                 this.#playerScore += 1;
 
-                await ANIM.roundWinAnimation(choice, this.#oponent);
+                await ANIM.roundWinAnimation(choice, oponent);
                 title = "You Win!";
+                // remove player choice from scene
+                this.stage.remove(oponent);
+                this.#choices = [choice];
             } break;
             case "loose": {
                 this.#oponentScore += 1;
 
-                await ANIM.roundLooseAnimation(choice, this.#oponent);
+                await ANIM.roundLooseAnimation(choice, oponent);
                 title = "You Loose :(";
+                // remove oponent choice from scene
+                this.stage.remove(choice);
+                this.#choices = [oponent];
             } break;
             default: throw new Error("bad result");
         }
 
         // after end
         UTILS.showPrompt(title, this.#playerScore, this.#oponentScore);
-        this.onRoundEnd(choice, this.#oponent);
+        this.#state = this.STATES.WAITCLICK;
     }
 
-    onRoundEnd() {
-        this.#state = this.STATES.WAITCLICK;
+    async onRoundEnd() {
+        this.#state = this.STATES.LOADING;
+        UTILS.removePrompt();
+        // do animation
+        await ANIM.roundEndAnimation(this.#choices);
+        // remove choices from scene
+        this.#choices.forEach(choice => this.stage.remove(choice));
+        this.#choices = [];
+
+        this.startRound();
     }
 
 
@@ -326,6 +340,9 @@ class GameManager {
                 if (this.#hovering && this.#hovering.selectable) {
                     this.selected(this.#hovering);
                 }
+            } break;
+            case this.STATES.WAITCLICK: {
+                this.onRoundEnd();
             }
         }
     }
